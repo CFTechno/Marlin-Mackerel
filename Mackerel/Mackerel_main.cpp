@@ -171,6 +171,7 @@
 // M666 - set delta endstop adjustment
 // M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
 // M700 - Extruder data dump 
+// M701 - Clear Statistics
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
@@ -3296,25 +3297,36 @@ void process_commands()
 		SERIAL_PROTOCOLPGM(" W:");
 		SERIAL_PROTOCOL(winderSpeed);
 		//
-#if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
-//		SERIAL_PROTOCOLPGM(" T:");
-//		SERIAL_PROTOCOL_F(degHotend(tmp_extruder), 1);
-//		SERIAL_PROTOCOLPGM(" /");
-//		SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder), 1);
-		for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-			SERIAL_PROTOCOLPGM(" T");
-			SERIAL_PROTOCOL(cur_extruder);
-			SERIAL_PROTOCOLPGM(":");
-			SERIAL_PROTOCOL_F(degHotend(cur_extruder), 1);
-			SERIAL_PROTOCOLPGM(" /");
-			SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder), 1);
-		}
-#else
-		SERIAL_ERROR_START;
-		SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-#endif
-              SERIAL_PROTOCOLLN("");
-              return;
+		#if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
+//			SERIAL_PROTOCOLPGM(" T:");
+//			SERIAL_PROTOCOL_F(degHotend(tmp_extruder), 1);
+//			SERIAL_PROTOCOLPGM(" /");
+//			SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder), 1);
+			for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+				SERIAL_PROTOCOLPGM(" T");
+				SERIAL_PROTOCOL(cur_extruder);
+				SERIAL_PROTOCOLPGM(":");
+				SERIAL_PROTOCOL_F(degHotend(cur_extruder), 1);
+				SERIAL_PROTOCOLPGM(" /");
+				SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder), 1);
+			}
+		#else
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
+		#endif
+        SERIAL_PROTOCOLLN("");
+        return;
+	}
+	break;
+	case 701:// M701 Clear Statistics
+	{
+		avg_measured_filament_width = 0.0;
+		max_measured_filament_width = 0.0;
+		min_measured_filament_width = 0.0;
+		sum_measured_filament_width = 0.0;
+		n_measured_filament_width = 0.0;
+		extrude_length = 0.0;
+		duration = 0.0;
 	}
 	break;
 	case 999: // M999: Restart after being stopped
